@@ -141,10 +141,23 @@ function initRedeemForm() {
     const form = document.getElementById('redeemForm');
     if (!form) return;
 
+    const codeInput = document.getElementById('code');
+
+    // 检查 URL 参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeFromUrl = urlParams.get('code') || urlParams.get('c');
+
+    if (codeFromUrl && codeInput) {
+        codeInput.value = codeFromUrl.toUpperCase();
+        // 自动提交
+        setTimeout(() => {
+            form.dispatchEvent(new Event('submit'));
+        }, 300);
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const codeInput = document.getElementById('code');
         const submitBtn = document.getElementById('submitBtn');
         const errorDiv = document.getElementById('errorMessage');
 
@@ -185,7 +198,6 @@ function initRedeemForm() {
     });
 
     // 自动转大写
-    const codeInput = document.getElementById('code');
     if (codeInput) {
         codeInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase();
