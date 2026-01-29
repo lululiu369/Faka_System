@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡密兑换 - Project Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* TOTP 专用样式 */
+        .totp-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .totp-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .totp-code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 16px 0;
+        }
+
+        .totp-timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .timer-bar {
+            width: 200px;
+            height: 6px;
+            background: var(--bg-input);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: var(--gradient-primary);
+            transition: width 1s linear;
+            border-radius: 3px;
+        }
+
+        .timer-progress.warning {
+            background: var(--warning);
+        }
+
+        .timer-progress.danger {
+            background: var(--danger);
+        }
+
+        .timer-text {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 18px;
+            min-width: 30px;
+        }
+
+        .view-count {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .view-count strong {
+            color: var(--primary-light);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="redeem-container">
+        <div class="redeem-card">
+            <div class="redeem-logo">
+                <h1>🔑 卡密兑换</h1>
+                <p>输入兑换码获取您的账号信息</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="redeemForm">
+                <div class="input-group">
+                    <label for="code">兑换码</label>
+                    <input type="text" id="code" name="code" placeholder="请输入您的兑换码" autocomplete="off" autofocus
+                        required>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    立即兑换
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>

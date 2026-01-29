@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+
+{% block title %}卡密管理{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>卡密管理</h1>
+    <p>管理账号密码库存</p>
+</div>
+
+<!-- 添加卡密 -->
+<div class="card">
+    <div class="card-header">
+        <h2>批量添加卡密</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.add_cards') }}">
+            <div class="form-group">
+                <label>选择分组</label>
+                <select name="group_id" class="form-control" required>
+                    <option value="">-- 请选择分组 --</option>
+                    {% for group in groups %}
+                    <option value="{{ group.id }}" {{ 'selected' if current_group_id==group.id }}>
+                        {{ group.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>卡密信息（每行一个）</label>
+                <textarea name="cards" class="form-control" rows="8" placeholder="推荐格式: 账号----密码----2FA密钥
+例如: user@gmail.com----MyPass123----JBSWY3DPEHPK3PXP
+
+其他格式:
+账号----密码
+账号----密码----其他信息
+{&quot;account&quot;:&quot;xxx&quot;,&quot;password&quot;:&quot;xxx&quot;,&quot;totp_secret&quot;:&quot;xxx&quot;}"
+                    required></textarea>
+            </div>
+            <div style="background: rgba(99, 102, 241, 0.1); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                <strong style="color: var(--primary-light);">💡 2FA 密钥说明</strong>
+                <p style="color: var(--text-secondary); margin: 8px 0 0; font-size: 14px;">
+                    2FA密钥是Google Authenticator等应用使用的Base32编码密钥（如 JBSWY3DPEHPK3PXP）。<br>
+                    用户兑换时会实时显示6位动态验证码和倒计时。
+                </p>
+            </div>
+            <button type="submit" class="btn btn-primary">添加卡密</button>
+        </form>
+    </div>
+</div>
+
+<!-- 筛选 -->
+<div class="card">
+    <div class="card-header">
+        <h2>卡密列表</h2>
+    </div>
+    <div class="card-body">
+        <form class="filter-bar" method="GET">
+            <select name="group_id" onchange="this.form.submit()">
+                <option value="">全部分组</option>
+                {% for group in groups %}
+                <option value="{{ group.id }}" {{ 'selected' if current_group_id==group.id }}>
+                    {{ group.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="status" onchange="this.form.submit()">
+                <option value="">全部状态</option>
+                <option value="available" {{ 'selected' if current_status=='available' }}>可用</option>
+                <option value="assigned" {{ 'selected' if current_status=='assigned' }}>已分配</option>
+            </select>
+        </form>
+
+        {% if cards %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>账号</th>
+                        <th>密码</th>
+                        <th>2FA密钥</th>
+                        <th>分组</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                    <tr>
+                        <td>{{ card.id }}</td>
+                        <td style="font-family: 'Roboto Mono', monospace;">
+                            {{ card.account[:30] }}{% if card.account|length > 30 %}...{% endif %}
+                        </td>
+                        <td style="font-family: 'Roboto Mono', monospace;">
+                            {{ card.password[:15] }}{% if card.password|length > 15 %}...{% endif %}
+                        </td>
+                        <td style="font-family: 'Roboto Mono', monospace; color: var(--primary-light);">
+                            {% if card.totp_secret %}
+                            {{ card.totp_secret[:10] }}...
+                            {% else %}
+                            <span style="color: var(--text-muted);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ card.group.name if card.group else '-' }}</td>
+                        <td>
+                            {% if card.status == 'available' %}
+                            <span class="badge badge-success">可用</span>
+                            {% else %}
+                            <span class="badge badge-warning">已分配</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.delete_card', card_id=card.id) }}"
+                                style="display: inline;" onsubmit="return confirmDelete()">
+                                <button type="submit" class="btn btn-secondary btn-sm"
+                                    style="color: var(--danger);">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">
+            暂无卡密
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

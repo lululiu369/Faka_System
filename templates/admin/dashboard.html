@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+
+{% block title %}仪表盘{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>仪表盘</h1>
+    <p>系统运行状态概览</p>
+</div>
+
+<!-- 统计卡片 -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="label">分组总数</div>
+        <div class="value">{{ stats.total_groups }}</div>
+    </div>
+    <div class="stat-card success">
+        <div class="label">可用卡密</div>
+        <div class="value">{{ stats.available_cards }}</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="label">已分配卡密</div>
+        <div class="value">{{ stats.assigned_cards }}</div>
+    </div>
+    <div class="stat-card info">
+        <div class="label">待使用兑换码</div>
+        <div class="value">{{ stats.unused_codes }}</div>
+    </div>
+</div>
+
+<!-- 快速操作 -->
+<div class="card">
+    <div class="card-header">
+        <h2>快速操作</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex gap-2">
+            <a href="{{ url_for('admin.groups') }}" class="btn btn-secondary">
+                ➕ 新建分组
+            </a>
+            <a href="{{ url_for('admin.cards') }}" class="btn btn-secondary">
+                💳 添加卡密
+            </a>
+            <a href="{{ url_for('admin.codes') }}" class="btn btn-primary">
+                🔑 生成兑换码
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 最近分配记录 -->
+<div class="card">
+    <div class="card-header">
+        <h2>最近分配记录</h2>
+    </div>
+    <div class="card-body">
+        {% if recent_redeems %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>账号</th>
+                        <th>分组</th>
+                        <th>分配时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in recent_redeems %}
+                    <tr>
+                        <td>{{ card.account[:20] }}{% if card.account|length > 20 %}...{% endif %}</td>
+                        <td>{{ card.group.name if card.group else '-' }}</td>
+                        <td>{{ card.assigned_at.strftime('%Y-%m-%d %H:%M') if card.assigned_at else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">
+            暂无分配记录
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

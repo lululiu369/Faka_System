@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}管理后台{% endblock %} - Project Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1>Project Nexus</h1>
+            </div>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="{{ url_for('admin.dashboard') }}"
+                        class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                        <span class="icon">📊</span>
+                        仪表盘
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.groups') }}" class="{{ 'active' if 'groups' in request.endpoint }}">
+                        <span class="icon">📁</span>
+                        分组管理
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.cards') }}" class="{{ 'active' if 'cards' in request.endpoint }}">
+                        <span class="icon">💳</span>
+                        卡密管理
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.codes') }}" class="{{ 'active' if 'codes' in request.endpoint }}">
+                        <span class="icon">🔑</span>
+                        兑换码管理
+                    </a>
+                </li>
+                <li>
+                    <a href="/" target="_blank">
+                        <span class="icon">🌐</span>
+                        兑换页面
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.logout') }}">
+                        <span class="icon">🚪</span>
+                        退出登录
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Flash 消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

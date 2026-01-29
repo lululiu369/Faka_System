@@ -1,0 +1,125 @@
+{% extends "admin/base.html" %}
+
+{% block title %}兑换码管理{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>兑换码管理</h1>
+    <p>生成和管理兑换码</p>
+</div>
+
+<!-- 生成兑换码 -->
+<div class="card">
+    <div class="card-header">
+        <h2>生成兑换码</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.generate_codes') }}">
+            <div class="flex gap-2" style="flex-wrap: wrap; align-items: flex-end;">
+                <div class="form-group" style="flex: 2; min-width: 200px; margin-bottom: 0;">
+                    <label>选择分组</label>
+                    <select name="group_id" class="form-control" required>
+                        <option value="">-- 请选择分组 --</option>
+                        {% for group in groups %}
+                        <option value="{{ group.id }}" {{ 'selected' if current_group_id==group.id }}>
+                            {{ group.name }} (库存: {{ group.available_count }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                    <label>生成数量</label>
+                    <input type="number" name="count" class="form-control" value="10" min="1" max="1000" required>
+                </div>
+                <button type="submit" class="btn btn-primary">生成</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 筛选 -->
+<div class="card">
+    <div class="card-header">
+        <h2>兑换码列表</h2>
+        <div class="flex gap-2">
+            <a href="{{ url_for('admin.export_codes', group_id=current_group_id or '', status='unused') }}"
+                class="btn btn-secondary btn-sm" target="_blank">
+                📥 导出未使用
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form class="filter-bar" method="GET">
+            <select name="group_id" onchange="this.form.submit()">
+                <option value="">全部分组</option>
+                {% for group in groups %}
+                <option value="{{ group.id }}" {{ 'selected' if current_group_id==group.id }}>
+                    {{ group.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="status" onchange="this.form.submit()">
+                <option value="">全部状态</option>
+                <option value="unused" {{ 'selected' if current_status=='unused' }}>未使用</option>
+                <option value="active" {{ 'selected' if current_status=='active' }}>已激活</option>
+            </select>
+        </form>
+
+        {% if codes %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>兑换码</th>
+                        <th>分组</th>
+                        <th>状态</th>
+                        <th>查看次数</th>
+                        <th>首次使用</th>
+                        <th>最近使用</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for code in codes %}
+                    <tr>
+                        <td style="font-family: 'Roboto Mono', monospace; font-weight: 600;">
+                            {{ code.code }}
+                            <button class="copy-btn" onclick="copyToClipboard('{{ code.code }}', this)">📋</button>
+                        </td>
+                        <td>{{ code.group.name if code.group else '-' }}</td>
+                        <td>
+                            {% if code.status == 'unused' %}
+                            <span class="badge badge-success">未使用</span>
+                            {% else %}
+                            <span class="badge badge-info">已激活</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if code.view_count > 0 %}
+                            <span class="badge badge-warning">{{ code.view_count }} 次</span>
+                            {% else %}
+                            <span style="color: var(--text-muted);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ code.first_used_at.strftime('%Y-%m-%d %H:%M') if code.first_used_at else '-' }}</td>
+                        <td>{{ code.last_used_at.strftime('%Y-%m-%d %H:%M') if code.last_used_at else '-' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.delete_code', code_id=code.id) }}"
+                                style="display: inline;" onsubmit="return confirmDelete()">
+                                <button type="submit" class="btn btn-secondary btn-sm"
+                                    style="color: var(--danger);">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">
+            暂无兑换码
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

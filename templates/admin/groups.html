@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+
+{% block title %}分组管理{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>分组管理</h1>
+    <p>管理卡密分组（如：Netflix标准版、高级版）</p>
+</div>
+
+<!-- 添加分组 -->
+<div class="card">
+    <div class="card-header">
+        <h2>添加分组</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.add_group') }}">
+            <div class="flex gap-2" style="flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                    <input type="text" name="name" class="form-control" placeholder="分组名称（如：Netflix标准账号）" required>
+                </div>
+                <div class="form-group" style="flex: 2; min-width: 200px; margin-bottom: 0;">
+                    <input type="text" name="description" class="form-control" placeholder="描述（可选）">
+                </div>
+                <button type="submit" class="btn btn-primary">添加</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 分组列表 -->
+<div class="card">
+    <div class="card-header">
+        <h2>分组列表</h2>
+    </div>
+    <div class="card-body">
+        {% if groups %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>描述</th>
+                        <th>库存</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                    <tr>
+                        <td>{{ group.id }}</td>
+                        <td><strong>{{ group.name }}</strong></td>
+                        <td style="color: var(--text-secondary);">{{ group.description or '-' }}</td>
+                        <td>
+                            <span class="badge badge-success">可用 {{ group.available_count }}</span>
+                            <span class="badge badge-info">总计 {{ group.total_count }}</span>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="{{ url_for('admin.cards', group_id=group.id) }}"
+                                    class="btn btn-secondary btn-sm">查看卡密</a>
+                                <a href="{{ url_for('admin.codes', group_id=group.id) }}"
+                                    class="btn btn-secondary btn-sm">查看兑换码</a>
+                                <form method="POST" action="{{ url_for('admin.delete_group', group_id=group.id) }}"
+                                    style="display: inline;"
+                                    onsubmit="return confirmDelete('确定删除分组 &quot;{{ group.name }}&quot; 吗？')">
+                                    <button type="submit" class="btn btn-secondary btn-sm"
+                                        style="color: var(--danger);">删除</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">
+            暂无分组，请先添加一个分组
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

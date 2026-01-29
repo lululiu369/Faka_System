@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: nexus_web
+    ports:
+      - "8080:5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///data/nexus.db
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: always
+    networks:
+      - nexus_network
+
+  redis:
+    image: redis:alpine
+    container_name: nexus_redis
+    volumes:
+      - ./redis_data:/data
+    restart: always
+    command: redis-server --appendonly yes
+    networks:
+      - nexus_network
+
+networks:
+  nexus_network:
+    driver: bridge
