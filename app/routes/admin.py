@@ -8,7 +8,7 @@ from app.models import Group, Card, RedeemCode
 from datetime import datetime, timedelta
 import json
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin', __name__, url_prefix='/console')
 
 
 def login_required(f):
